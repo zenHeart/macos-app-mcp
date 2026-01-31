@@ -1,9 +1,15 @@
 name: Publish to NPM
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*.*.*'  # Triggered when pushing version tags like v1.0.3
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (leave empty to use existing version)'
+        required: false
+        type: string
 
 jobs:
   build_and_publish:
@@ -57,3 +63,5 @@ jobs:
 
       - name: Publish to NPM
         run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

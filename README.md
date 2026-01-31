@@ -168,6 +168,29 @@ The Inspector allows you to:
 pnpm run lint
 ```
 
+### Release Workflow
+
+The project uses automated version bumping with GitHub Actions:
+
+```bash
+# Patch release (1.0.2 -> 1.0.3) - for bug fixes
+pnpm run release
+
+# Minor release (1.0.2 -> 1.1.0) - for new features
+pnpm run release:minor
+
+# Major release (1.0.2 -> 2.0.0) - for breaking changes
+pnpm run release:major
+```
+
+This will:
+
+1. Run lint and tests
+2. Build the project
+3. Bump the version in `package.json`
+4. Create a git tag (e.g., `v1.0.3`)
+5. Push to GitHub → triggers automatic NPM publish
+
 ## 📄 License
 
 MIT © [zenheart](mailto:zenheart_register@163.com)
