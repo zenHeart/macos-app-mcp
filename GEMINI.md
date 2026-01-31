@@ -98,6 +98,15 @@ The project uses `pnpm` as its package manager. Key commands are defined in `pac
 - **Testing:** Every app and major utility has a corresponding test file in the `test/` directory (e.g., `notes.ts` -> `notes.test.ts`). New features or bug fixes should be accompanied by tests.
 - **Modularity:** Functionality is organized by the application it corresponds to. Keep this separation of concerns in mind when adding new features.
 - **AppleScript:** All interactions with macOS are handled via AppleScript commands executed by the `runAppleScript` utility in `src/utils/apple-script.ts`. This is the primary mechanism for OS integration.
-- **Configuration:** The server is configured via environment variables (e.g., `MCP_NOTES_FOLDER`, `MCP_ALLOW_DELETE`). Configuration logic is in `src/utils/config.ts`.
+- **Configuration:** The server is configured via environment variables (e.g., `MCP_NOTES_FOLDER`, `MCP_ALLOW_DELETE`). Configuration logic is in `src/utils/config.ts`. Note: `MCP_NOTES_FOLDER` defaults to `undefined` (uses default account).
 - **Safety:** Destructive operations (delete/update) are disabled by default and require explicit confirmation, often by passing back the exact name of the item to be deleted. Maintain this safety pattern.
 - **English Only:** All commit messages, documentation, code comments, and variable/function names MUST be written in English. This ensures consistency and accessibility for the broader developer community.
+
+## Known macOS Limitations
+
+When working with macOS apps via AppleScript, be aware of these limitations:
+
+- **Notes App Indexing:** Newly created notes may not be immediately findable via AppleScript queries. The `first note whose name contains/is` syntax often returns error -1719 for fresh notes due to iCloud sync delays.
+- **Contacts App:** The Contacts app must be running for contact-related operations to work. In headless/CI environments, Contacts tests may fail.
+- **Date Parsing:** AppleScript date parsing can be locale-sensitive. The `date-parser.ts` utility generates AppleScript-friendly date expressions to handle this.
+- **Application Launch:** Some operations require the target app to be running. The AppleScript runner includes a preamble to launch apps before executing commands.

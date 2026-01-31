@@ -34,8 +34,8 @@ Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
       "command": "npx",
       "args": ["-y", "macos-mcp-server"],
       "env": {
-        "MCP_NOTES_FOLDER": "ai",
-        "MCP_REMINDERS_LIST": "ai",
+        "MCP_NOTES_FOLDER": "work",
+        "MCP_REMINDERS_LIST": "work",
         "MCP_ALLOW_DELETE": "false"
       }
     }
@@ -92,7 +92,7 @@ Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
 | :--- | :--- | :--- |
 | `MCP_ALLOW_DELETE` | `false` | Enable/Disable deletion capability |
 | `MCP_ALLOW_UPDATE` | `false` | Enable/Disable editing capability |
-| `MCP_NOTES_FOLDER` | `ai` | Default folder for new notes |
+| `MCP_NOTES_FOLDER` | *(undefined)* | Default folder for new notes; uses default account if not set |
 | `MCP_REMINDERS_LIST` | `ai` | Default list for new reminders |
 | `MCP_LOGGING_ENABLED` | `true` | Required for recovery features |
 
@@ -122,12 +122,18 @@ pnpm run test:coverage
 
 ### Integration Testing
 
-⚠️ **Warning**: Integration tests interact with **real macOS apps** (Notes, Reminders, Calendar). Test items are prefixed with `[MCP-TEST]` for identification.
+⚠️ **Warning**: Integration tests interact with **real macOS apps** (Notes, Reminders, Calendar). Test items are prefixed with `MCP-TEST-` for identification.
 
 ```bash
 # Run integration tests against real macOS apps
- 
+pnpm run test:integration
 ```
+
+**Known Limitations:**
+
+- **Notes**: Newly created notes may not be immediately findable via AppleScript due to iCloud sync delays
+- **Contacts**: The Contacts app must be running for contact-related tests to pass
+- Some tests are skipped due to these macOS app limitations
 
 ### MCP Inspector Playground
 
