@@ -98,11 +98,68 @@ Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
 
 ## 🔧 Development
 
+### Setup
+
 ```bash
 git clone https://github.com/zenheart/macos-mcp-server
+cd macos-mcp-server
 pnpm install
 pnpm run build
+```
+
+### Testing
+
+```bash
+# Run unit tests (mocked, safe to run)
 pnpm run test
+
+# Run unit tests in watch mode
+pnpm run test:watch
+
+# Run with coverage report
+pnpm run test:coverage
+```
+
+### Integration Testing
+
+⚠️ **Warning**: Integration tests interact with **real macOS apps** (Notes, Reminders, Calendar). Test items are prefixed with `[MCP-TEST]` for identification.
+
+```bash
+# Run integration tests against real macOS apps
+pnpm run test:integration
+```
+
+### MCP Inspector Playground
+
+The MCP Inspector provides an interactive web UI for testing tools manually:
+
+```bash
+# Build and start MCP Inspector (opens http://localhost:5173)
+pnpm run playground:dev
+
+# Or if already built
+pnpm run playground
+```
+
+The Inspector allows you to:
+
+- Browse all available tools
+- Execute tools with custom parameters
+- View responses and debug issues
+- Monitor server logs
+
+### Development Workflow
+
+1. Make changes to source files in `src/`
+2. Run `pnpm run dev` for watch mode (auto-rebuild on save)
+3. Test with unit tests: `pnpm run test`
+4. Test interactively: `pnpm run playground:dev`
+5. Run integration tests before submitting PR: `pnpm run test:integration`
+
+### Type Checking
+
+```bash
+pnpm run lint
 ```
 
 ## 📄 License
