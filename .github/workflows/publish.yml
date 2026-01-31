@@ -1,6 +1,4 @@
-name: Publish to NPM
-
-on:
+name: publish.yml
   release:
     types: [published]
   workflow_dispatch:
@@ -51,20 +49,6 @@ jobs:
 
       - name: Build
         run: pnpm run build
-
-      - name: Decode OIDC Token
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          set -e
-          # The ACTIONS_ID_TOKEN_REQUEST_URL and ACTIONS_ID_TOKEN_REQUEST_TOKEN environment variables are
-          # only available when the job has `id-token: write` permissions.
-          # We are requesting a token with a custom audience claim of "npm"
-          TOKEN_URL="${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm"
-          OIDC_TOKEN_JSON=$(curl -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "${TOKEN_URL}")
-          OIDC_TOKEN=$(echo "${OIDC_TOKEN_JSON}" | jq -r '.value')
-          echo "---- OIDC TOKEN CLAIMS ----"
-          jq -R 'split(".") | .[1] | @base64d | fromjson' <<< "$OIDC_TOKEN"
-          echo "--------------------------"
 
       - name: Publish to NPM
         run: npm publish --provenance
