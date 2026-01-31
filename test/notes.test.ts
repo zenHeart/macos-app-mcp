@@ -99,8 +99,9 @@ describe("Notes", () => {
         .mockResolvedValueOnce("old body")
         .mockResolvedValueOnce("");
       await notes.update("Title", "New Content");
+      // The new syntax uses 'first note whose name contains' and sets body of it
       expect(AppleScriptRunner.execute).toHaveBeenCalledWith(
-        expect.stringContaining('set body of note "Title" to "New Content"'),
+        expect.stringContaining('first note whose name contains "Title"'),
         "Notes",
       );
     });
@@ -126,8 +127,9 @@ describe("Notes", () => {
 
       const result = await notes.delete("DeleteMe", "DeleteMe");
       expect(result).toContain("deleted successfully");
+      // The new syntax uses 'first note whose name contains' for the delete
       expect(AppleScriptRunner.execute).toHaveBeenCalledWith(
-        expect.stringContaining('delete note "DeleteMe"'),
+        expect.stringContaining('first note whose name contains "DeleteMe"'),
         "Notes",
       );
     });

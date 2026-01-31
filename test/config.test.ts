@@ -17,7 +17,7 @@ describe("ConfigManager", () => {
 
   it("should return default values when no environment variables are set", () => {
     const config = ConfigManager.getInstance();
-    expect(config.getDefaultNotesFolder()).toBe("ai");
+    expect(config.getDefaultNotesFolder()).toBeUndefined();
     expect(config.getDefaultRemindersList()).toBe("ai");
     expect(config.canDelete()).toBe(false);
     expect(config.canUpdate()).toBe(false);

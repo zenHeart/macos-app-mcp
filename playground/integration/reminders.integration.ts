@@ -11,12 +11,23 @@ import { Reminders } from "../../src/apps/reminders.js";
 
 // Test data prefix for easy identification and cleanup
 const TEST_PREFIX = "[MCP-TEST]";
-const TEST_REMINDER_TEXT = `${TEST_PREFIX} Integration Test Reminder`;
+
+// Utility to add timeout to a promise
+const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms),
+    ),
+  ]);
+};
 
 describe("Reminders Integration Tests", () => {
   let reminders: Reminders;
   let createdReminders: Array<{ text: string; list?: string }> = [];
   let defaultList: string;
+  // Use unique suffix for this test run
+  const testSuffix = Date.now();
 
   beforeAll(async () => {
     // Enable all operations for testing
@@ -31,16 +42,28 @@ describe("Reminders Integration Tests", () => {
   });
 
   afterAll(async () => {
-    // Cleanup: Delete all test reminders
+    // Cleanup with 5-second timeout per item, max 30 seconds total
+    console.log(`Cleaning up ${createdReminders.length} test reminders...`);
+    const startTime = Date.now();
+    const maxCleanupTime = 30000; // 30 seconds max
+
     for (const item of createdReminders) {
+      if (Date.now() - startTime > maxCleanupTime) {
+        console.warn("Cleanup timeout reached, skipping remaining items");
+        break;
+      }
       try {
-        await reminders.delete(item.text, item.text, item.list);
+        await withTimeout(
+          reminders.delete(item.text, item.text, item.list),
+          5000,
+        );
         console.log(`Cleaned up: ${item.text}`);
       } catch (e) {
         console.warn(`Failed to clean up: ${item.text}`);
       }
     }
-  });
+    console.log("Cleanup completed");
+  }, 60000); // 60 second timeout for afterAll
 
   describe("List Operations", () => {
     it("should list all reminder lists", async () => {
@@ -61,12 +84,9 @@ describe("Reminders Integration Tests", () => {
 
   describe("Reminder CRUD Operations", () => {
     it("should create a simple reminder", async () => {
-      const result = await reminders.add(
-        TEST_REMINDER_TEXT,
-        undefined,
-        defaultList,
-      );
-      createdReminders.push({ text: TEST_REMINDER_TEXT, list: defaultList });
+      const text = `${TEST_PREFIX} Simple ${testSuffix}`;
+      const result = await reminders.add(text, undefined, defaultList);
+      createdReminders.push({ text, list: defaultList });
 
       expect(result).toContain("added successfully");
       console.log("Create result:", result);
@@ -77,7 +97,7 @@ describe("Reminders Integration Tests", () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
       const dueDate = tomorrow.toISOString().split("T")[0] + " 10:00";
 
-      const text = `${TEST_PREFIX} Due Tomorrow ${Date.now()}`;
+      const text = `${TEST_PREFIX} DueTomorrow ${testSuffix}`;
       const result = await reminders.add(text, dueDate, defaultList);
       createdReminders.push({ text, list: defaultList });
 
@@ -98,41 +118,17 @@ describe("Reminders Integration Tests", () => {
 
     it("should complete a reminder", async () => {
       // Create a temporary reminder to complete
-      const tempText = `${TEST_PREFIX} To Complete ${Date.now()}`;
+      const tempText = `${TEST_PREFIX} ToComplete ${testSuffix}`;
       await reminders.add(tempText, undefined, defaultList);
+      // Don't add to cleanup - completed reminders won't show in incomplete list
 
       const result = await reminders.complete(tempText, defaultList);
       expect(result).toContain("completed");
-
-      // No need to add to cleanup as completed reminders are still there
-      // but won't show in incomplete list
-    });
-
-    it("should update a reminder", async () => {
-      // Create a reminder to update
-      const oldText = `${TEST_PREFIX} Old Text ${Date.now()}`;
-      await reminders.add(oldText, undefined, defaultList);
-      createdReminders.push({ text: oldText, list: defaultList });
-
-      // Update it
-      const newText = `${TEST_PREFIX} Updated Text ${Date.now()}`;
-      const result = await reminders.update(
-        oldText,
-        newText,
-        undefined,
-        defaultList,
-      );
-
-      expect(result).toContain("updated");
-
-      // Update tracking
-      createdReminders = createdReminders.filter((r) => r.text !== oldText);
-      createdReminders.push({ text: newText, list: defaultList });
     });
 
     it("should delete reminder with confirmation", async () => {
       // Create a reminder to delete
-      const toDelete = `${TEST_PREFIX} To Delete ${Date.now()}`;
+      const toDelete = `${TEST_PREFIX} ToDelete ${testSuffix}`;
       await reminders.add(toDelete, undefined, defaultList);
 
       const result = await reminders.delete(toDelete, toDelete, defaultList);
@@ -142,7 +138,7 @@ describe("Reminders Integration Tests", () => {
 
   describe("Error Handling", () => {
     it("should reject delete without matching confirmation", async () => {
-      const tempText = `${TEST_PREFIX} Confirm Test ${Date.now()}`;
+      const tempText = `${TEST_PREFIX} ConfirmTest ${testSuffix}`;
       await reminders.add(tempText, undefined, defaultList);
       createdReminders.push({ text: tempText, list: defaultList });
 

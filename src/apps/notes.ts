@@ -14,7 +14,7 @@ export class Notes {
   /**
    * Helper to convert "a/b/c" to 'folder "c" of folder "b" of folder "a"'
    */
-  private folderToAppleScript(folderPath: string): string {
+  private folderToAppleScript(folderPath?: string): string {
     if (!folderPath) return "";
     const parts = folderPath.split("/").filter(Boolean);
     if (parts.length === 0) return "";
@@ -27,11 +27,15 @@ export class Notes {
   }
 
   /**
-   * Helper to get note reference with full hierarchical folder context
+   * Helper to get note reference with full hierarchical folder context.
+   * Uses 'first note whose name contains' syntax which is more reliable than 'note "title"'.
    */
   private getNoteReference(title: string, folder?: string): string {
     const folderRef = folder ? this.folderToAppleScript(folder) : "";
-    return folderRef ? `note "${title}" of ${folderRef}` : `note "${title}"`;
+    // Use 'first note whose name contains' for reliability with exact title
+    return folderRef
+      ? `(first note of ${folderRef} whose name contains "${title}")`
+      : `(first note whose name contains "${title}")`;
   }
 
   /**

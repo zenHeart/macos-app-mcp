@@ -61,10 +61,10 @@ export class ConfigManager {
   }
 
   /**
-   * Get default folder for notes (from env or default "ai")
+   * Get default folder for notes (from env or undefined for default account)
    */
-  getDefaultNotesFolder(): string {
-    return process.env.MCP_NOTES_FOLDER || "ai";
+  getDefaultNotesFolder(): string | undefined {
+    return process.env.MCP_NOTES_FOLDER || undefined;
   }
 
   /**
