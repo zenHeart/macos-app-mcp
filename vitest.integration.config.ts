@@ -1,0 +1,23 @@
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    // Include only integration tests
+    include: ["playground/integration/**/*.integration.ts"],
+    // Set longer timeout for real API calls
+    testTimeout: 30000,
+    hookTimeout: 30000,
+    // Run tests sequentially to avoid conflicts with macOS apps
+    pool: "forks",
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
+    // Enable environment variables for testing
+    env: {
+      MCP_ALLOW_DELETE: "true",
+      MCP_ALLOW_UPDATE: "true",
+    },
+  },
+});

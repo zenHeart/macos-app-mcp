@@ -71,6 +71,21 @@ The project uses `pnpm` as its package manager. Key commands are defined in `pac
     pnpm test:coverage  # Run tests and generate a coverage report
     ```
 
+- **Run Integration Tests:**
+    *Tests against real macOS apps (Notes, Reminders, Calendar)*
+
+    ```bash
+    pnpm run test:integration  # Run integration tests
+    ```
+
+- **MCP Inspector Playground:**
+    *Interactive web UI for testing MCP tools*
+
+    ```bash
+    pnpm run playground      # Start MCP Inspector (requires build first)
+    pnpm run playground:dev  # Build and start MCP Inspector
+    ```
+
 - **Linting/Type-Checking:**
 
     ```bash
