@@ -23,6 +23,8 @@ describe("Notes Integration Tests", () => {
     // Enable all operations for testing
     process.env.MCP_ALLOW_DELETE = "true";
     process.env.MCP_ALLOW_UPDATE = "true";
+    // Use the default "Notes" folder which always exists on macOS
+    process.env.MCP_NOTES_FOLDER = "Notes";
     notes = new Notes();
   });
 

@@ -1,6 +1,7 @@
 import { AppleScriptRunner } from "../utils/apple-script.js";
 import { ConfigManager } from "../utils/config.js";
 import { OperationLogger } from "../utils/logger.js";
+import { generateAppleScriptDate } from "../utils/date-parser.js";
 
 /**
  * Reminders Application Integration
@@ -9,26 +10,6 @@ import { OperationLogger } from "../utils/logger.js";
 export class Reminders {
   private config = ConfigManager.getInstance();
   private logger = OperationLogger.getInstance();
-
-  /**
-   * Helper to convert ISO-style date strings to AppleScript date object construction.
-   */
-  private parseDateToAppleScript(dateStr: string): string {
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      return `date "${dateStr}"`;
-    }
-
-    return `(current date) as record
-      set theResult to (current date)
-      set year of theResult to ${date.getFullYear()}
-      set month of theResult to ${date.getMonth() + 1}
-      set day of theResult to ${date.getDate()}
-      set hours of theResult to ${date.getHours()}
-      set minutes of theResult to ${date.getMinutes()}
-      set seconds of theResult to ${date.getSeconds()}
-      theResult`;
-  }
 
   /**
    * List incomplete reminders
@@ -55,19 +36,36 @@ export class Reminders {
    */
   async add(text: string, due?: string, listName?: string): Promise<string> {
     const targetList = listName || this.config.getDefaultRemindersList();
-    const dueProp = due ? `, due date:${this.parseDateToAppleScript(due)}` : "";
 
     // Correct syntax is "at end of list" or "in list"
     const listClause = targetList ? `at end of list "${targetList}"` : "";
 
-    await AppleScriptRunner.execute(
-      `
-      tell application "Reminders"
-        make new reminder ${listClause} with properties {name:"${text}"${dueProp}}
-      end tell
-    `,
-      "Reminders",
-    );
+    if (due) {
+      // Generate date setup code
+      const { setupCode, variableName } = generateAppleScriptDate(
+        due,
+        "dueDate",
+      );
+
+      await AppleScriptRunner.execute(
+        `
+        tell application "Reminders"
+          ${setupCode}
+          make new reminder ${listClause} with properties {name:"${text}", due date:${variableName}}
+        end tell
+      `,
+        "Reminders",
+      );
+    } else {
+      await AppleScriptRunner.execute(
+        `
+        tell application "Reminders"
+          make new reminder ${listClause} with properties {name:"${text}"}
+        end tell
+      `,
+        "Reminders",
+      );
+    }
 
     // Log the operation
     await this.logger.log(
@@ -124,9 +122,6 @@ export class Reminders {
 
     const listClause = listName ? `of list "${listName}"` : "";
     const nameUpdate = newText ? `set name of theReminder to "${newText}"` : "";
-    const dueUpdate = newDue
-      ? `set due date of theReminder to ${this.parseDateToAppleScript(newDue)}`
-      : "";
 
     // Get old state for logging - use a more precise query
     const oldDue = await AppleScriptRunner.execute(
@@ -139,16 +134,36 @@ export class Reminders {
       "Reminders",
     );
 
-    await AppleScriptRunner.execute(
-      `
-      tell application "Reminders"
-        set theReminder to first reminder ${listClause} whose name is "${oldText}" and completed is false
-        ${nameUpdate}
-        ${dueUpdate}
-      end tell
-    `,
-      "Reminders",
-    );
+    if (newDue) {
+      // Generate date setup code for new due date
+      const { setupCode, variableName } = generateAppleScriptDate(
+        newDue,
+        "newDueDate",
+      );
+      const dueUpdate = `set due date of theReminder to ${variableName}`;
+
+      await AppleScriptRunner.execute(
+        `
+        tell application "Reminders"
+          ${setupCode}
+          set theReminder to first reminder ${listClause} whose name is "${oldText}" and completed is false
+          ${nameUpdate}
+          ${dueUpdate}
+        end tell
+      `,
+        "Reminders",
+      );
+    } else if (nameUpdate) {
+      await AppleScriptRunner.execute(
+        `
+        tell application "Reminders"
+          set theReminder to first reminder ${listClause} whose name is "${oldText}" and completed is false
+          ${nameUpdate}
+        end tell
+      `,
+        "Reminders",
+      );
+    }
 
     // Log the operation
     await this.logger.log(

@@ -4,9 +4,9 @@ export default defineConfig({
   test: {
     // Include only integration tests
     include: ["playground/integration/**/*.integration.ts"],
-    // Set longer timeout for real API calls
-    testTimeout: 30000,
-    hookTimeout: 30000,
+    // Set longer timeout for real API calls (60 seconds)
+    testTimeout: 60000,
+    hookTimeout: 60000,
     // Run tests sequentially to avoid conflicts with macOS apps
     pool: "forks",
     poolOptions: {
@@ -18,6 +18,7 @@ export default defineConfig({
     env: {
       MCP_ALLOW_DELETE: "true",
       MCP_ALLOW_UPDATE: "true",
+      MCP_NOTES_FOLDER: "Notes",
     },
   },
 });

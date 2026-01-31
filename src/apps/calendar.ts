@@ -1,6 +1,7 @@
 import { AppleScriptRunner } from "../utils/apple-script.js";
 import { ConfigManager } from "../utils/config.js";
 import { OperationLogger } from "../utils/logger.js";
+import { generateAppleScriptDate } from "../utils/date-parser.js";
 
 /**
  * Calendar Application Integration
@@ -11,50 +12,24 @@ export class Calendar {
   private logger = OperationLogger.getInstance();
 
   /**
-   * Helper to convert ISO-style date strings to AppleScript date object construction.
-   * This avoids issues with system locale formats for date "..." strings.
-   * Supports: "2024-01-01", "2024-01-01 10:00", "January 1, 2024 10:00:00"
-   */
-  private parseDateToAppleScript(dateStr: string): string {
-    // If it's a relative offset like "today", use helper or pass as is
-    if (dateStr.toLowerCase() === "today") {
-      return "(current date)";
-    }
-
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {
-      // Fallback to literal if JS Date fails to parse
-      return `date "${dateStr}"`;
-    }
-
-    // Explicitly set properties for localized robustness
-    return `(current date) as record
-      set theResult to (current date)
-      set year of theResult to ${date.getFullYear()}
-      set month of theResult to ${date.getMonth() + 1}
-      set day of theResult to ${date.getDate()}
-      set hours of theResult to ${date.getHours()}
-      set minutes of theResult to ${date.getMinutes()}
-      set seconds of theResult to ${date.getSeconds()}
-      theResult`;
-  }
-
-  /**
    * List calendar events for a specific date
    * @param date - Date string, defaults to "today"
    * @returns List of events
    */
   async listEvents(date: string = "today"): Promise<string[]> {
-    const dateObjBuilder = this.parseDateToAppleScript(date);
+    const { setupCode, variableName } = generateAppleScriptDate(
+      date,
+      "theDate",
+    );
 
     const result = await AppleScriptRunner.execute(
       `
       tell application "Calendar"
-        set theDate to ${dateObjBuilder}
+        ${setupCode}
         -- Normalize to beginning of day
-        set time of theDate to 0
-        set startOfDay to theDate
-        set endOfDay to theDate + (24 * 60 * 60) - 1
+        set time of ${variableName} to 0
+        set startOfDay to ${variableName}
+        set endOfDay to ${variableName} + (24 * 60 * 60) - 1
         set eventList to {}
         repeat with theCalendar in calendars
           set theEvents to (every event of theCalendar whose start date is greater than or equal to startOfDay and start date is less than or equal to endOfDay)
@@ -92,15 +67,15 @@ export class Calendar {
       : "in default calendar";
     const locationProp = location ? `, location:"${location}"` : "";
 
-    const startObj = this.parseDateToAppleScript(startDate);
-    const endObj = this.parseDateToAppleScript(endDate);
+    const startSetup = generateAppleScriptDate(startDate, "startD");
+    const endSetup = generateAppleScriptDate(endDate, "endD");
 
     await AppleScriptRunner.execute(
       `
       tell application "Calendar"
-        set startD to ${startObj}
-        set endD to ${endObj}
-        make new event ${calendarClause} with properties {summary:"${summary}", start date:startD, end date:endD${locationProp}}
+        ${startSetup.setupCode}
+        ${endSetup.setupCode}
+        make new event ${calendarClause} with properties {summary:"${summary}", start date:${startSetup.variableName}, end date:${endSetup.variableName}${locationProp}}
       end tell
     `,
       "Calendar",
@@ -146,15 +121,18 @@ export class Calendar {
       );
     }
 
-    const dateObj = this.parseDateToAppleScript(startDate);
+    const { setupCode, variableName } = generateAppleScriptDate(
+      startDate,
+      "targetDate",
+    );
 
     // Get event details before deletion for logging
     const eventDetails = await AppleScriptRunner.execute(
       `
       tell application "Calendar"
-        set targetDate to ${dateObj}
+        ${setupCode}
         repeat with theCalendar in calendars
-          set matchingEvents to (every event of theCalendar whose summary is "${summary}" and start date is targetDate)
+          set matchingEvents to (every event of theCalendar whose summary is "${summary}" and start date is ${variableName})
           if (count of matchingEvents) > 0 then
             set theEvent to first item of matchingEvents
             return {summary of theEvent, start date of theEvent as string, end date of theEvent as string, name of theCalendar, location of theEvent}
@@ -169,9 +147,9 @@ export class Calendar {
     await AppleScriptRunner.execute(
       `
       tell application "Calendar"
-        set targetDate to ${dateObj}
+        ${setupCode}
         repeat with theCalendar in calendars
-          set matchingEvents to (every event of theCalendar whose summary is "${summary}" and start date is targetDate)
+          set matchingEvents to (every event of theCalendar whose summary is "${summary}" and start date is ${variableName})
           repeat with theEvent in matchingEvents
             delete theEvent
           end repeat

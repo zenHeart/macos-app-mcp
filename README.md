@@ -126,7 +126,7 @@ pnpm run test:coverage
 
 ```bash
 # Run integration tests against real macOS apps
-pnpm run test:integration
+ 
 ```
 
 ### MCP Inspector Playground
