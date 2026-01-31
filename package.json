@@ -1,0 +1,72 @@
+{
+  "name": "macos-mcp-server",
+  "version": "1.0.0",
+  "description": "A production-ready MCP server for deep macOS integration (Notes, Reminders, Calendar, Contacts, Messages)",
+  "type": "module",
+  "bin": {
+    "macos-mcp": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --clean --minify --dts",
+    "dev": "tsup src/index.ts --format esm --watch --onSuccess \"node dist/index.js\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run lint && pnpm run test && pnpm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.3",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "macos",
+    "automation",
+    "ai",
+    "cursor",
+    "windsurf",
+    "claude",
+    "gemini",
+    "notes",
+    "reminders",
+    "calendar",
+    "contacts",
+    "applescript"
+  ],
+  "author": "zenheart <zenheart_register@163.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zenheart/macos-mcp-server"
+  },
+  "homepage": "https://github.com/zenheart/macos-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/zenheart/macos-mcp-server/issues"
+  }
+}
