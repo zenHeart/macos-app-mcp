@@ -1,6 +1,6 @@
 {
   "name": "macos-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A production-ready MCP server for deep macOS integration (Notes, Reminders, Calendar, Contacts, Messages)",
   "type": "module",
   "bin": {
@@ -63,10 +63,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/zenheart/macos-mcp-server"
+    "url": "https://github.com/zenHeart/macos-app-mcp"
   },
-  "homepage": "https://github.com/zenheart/macos-mcp-server#readme",
+  "homepage": "https://github.com/zenHeart/macos-app-mcp/blob/main/README.md",
   "bugs": {
-    "url": "https://github.com/zenheart/macos-mcp-server/issues"
+    "url": "https://github.com/zenHeart/macos-app-mcp/issues"
   }
 }
