@@ -135,11 +135,11 @@ class MacOSMcpServer {
 
           // ===== Reminders Tools =====
           case "reminders_list": {
-            if (!args?.list) {
+            if (!args?.listName) {
               const result = await this.reminders.listTree();
               return { content: [{ type: "text", text: result }] };
             }
-            const results = await this.reminders.list(args?.list as string);
+            const results = await this.reminders.list(args?.listName as string);
             return {
               content: [
                 {

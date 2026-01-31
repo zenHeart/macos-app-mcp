@@ -56,8 +56,9 @@ export const ToolDefinitions = [
   // ===== Reminders Tools =====
   {
     name: "reminders_list",
-    description: "List incomplete reminders",
-    schema: z.object({ list: z.string().optional() }),
+    description:
+      "List incomplete reminders. If listName is provided, show reminders from that list only. Otherwise, show tree view of all lists and their reminders.",
+    schema: z.object({ listName: z.string().optional() }),
   },
   {
     name: "reminders_add",
