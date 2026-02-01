@@ -14,7 +14,7 @@ The MCP Inspector is an official tool for interactively testing MCP servers. It 
 
 ```bash
 # Run the MCP Inspector with our server
-pnpm run playground
+pnpm playground
 
 # Or directly with npx
 npx @modelcontextprotocol/inspector node dist/index.js
@@ -28,12 +28,12 @@ Integration tests run real AppleScript commands against your macOS apps. **These
 
 ```bash
 # Run all integration tests
-pnpm run test:integration
+pnpm test:integration
 
 # Run specific app integration tests
-pnpm run test:integration -- --grep "Notes"
-pnpm run test:integration -- --grep "Reminders"
-pnpm run test:integration -- --grep "Calendar"
+pnpm test:integration -- --grep "Notes"
+pnpm test:integration -- --grep "Reminders"
+pnpm test:integration -- --grep "Calendar"
 ```
 
 ### 3. Test Scenarios

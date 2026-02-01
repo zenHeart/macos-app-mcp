@@ -26,7 +26,6 @@ describe("Calendar Integration Tests", () => {
     // Get first available calendar as default
     const calendars = await calendar.listCalendars();
     defaultCalendar = calendars[0] || "Calendar";
-    console.log("Using default calendar:", defaultCalendar);
   });
 
   afterAll(async () => {
@@ -38,9 +37,8 @@ describe("Calendar Integration Tests", () => {
           event.startDate,
           event.summary,
         );
-        console.log(`Cleaned up: ${event.summary}`);
       } catch (e) {
-        console.warn(`Failed to clean up: ${event.summary}`);
+        // Cleanup failures are expected sometimes
       }
     }
   });
@@ -51,14 +49,12 @@ describe("Calendar Integration Tests", () => {
 
       expect(Array.isArray(calendars)).toBe(true);
       expect(calendars.length).toBeGreaterThan(0);
-      console.log("Available calendars:", calendars);
     });
 
     it("should list events for today", async () => {
       const events = await calendar.listEvents("today");
 
       expect(Array.isArray(events)).toBe(true);
-      console.log("Today's events:", events.length);
     });
 
     it("should list events for specific date", async () => {
@@ -69,7 +65,6 @@ describe("Calendar Integration Tests", () => {
       const events = await calendar.listEvents(dateStr);
 
       expect(Array.isArray(events)).toBe(true);
-      console.log(`Events for ${dateStr}:`, events.length);
     });
   });
 
@@ -93,7 +88,6 @@ describe("Calendar Integration Tests", () => {
       createdEvents.push({ summary, startDate });
 
       expect(result).toContain("created");
-      console.log("Create result:", result);
     });
 
     it("should find created event in calendar", async () => {

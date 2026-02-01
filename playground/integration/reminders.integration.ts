@@ -33,23 +33,21 @@ describe("Reminders Integration Tests", () => {
     // Enable all operations for testing
     process.env.MCP_ALLOW_DELETE = "true";
     process.env.MCP_ALLOW_UPDATE = "true";
+    // Use "ai" list for tests (it will be auto-created if not exists)
+    process.env.MCP_REMINDERS_LIST = "ai";
     reminders = new Reminders();
 
-    // Get first available list as default
-    const lists = await reminders.listLists();
-    defaultList = lists[0] || "Reminders";
-    console.log("Using default list:", defaultList);
+    // Use "ai" as our test list
+    defaultList = "ai";
   });
 
   afterAll(async () => {
     // Cleanup with 5-second timeout per item, max 30 seconds total
-    console.log(`Cleaning up ${createdReminders.length} test reminders...`);
     const startTime = Date.now();
     const maxCleanupTime = 30000; // 30 seconds max
 
     for (const item of createdReminders) {
       if (Date.now() - startTime > maxCleanupTime) {
-        console.warn("Cleanup timeout reached, skipping remaining items");
         break;
       }
       try {
@@ -57,12 +55,10 @@ describe("Reminders Integration Tests", () => {
           reminders.delete(item.text, item.text, item.list),
           5000,
         );
-        console.log(`Cleaned up: ${item.text}`);
       } catch (e) {
-        console.warn(`Failed to clean up: ${item.text}`);
+        // Cleanup failures are expected sometimes
       }
     }
-    console.log("Cleanup completed");
   }, 60000); // 60 second timeout for afterAll
 
   describe("List Operations", () => {
@@ -71,14 +67,12 @@ describe("Reminders Integration Tests", () => {
 
       expect(Array.isArray(lists)).toBe(true);
       expect(lists.length).toBeGreaterThan(0);
-      console.log("Available lists:", lists);
     });
 
     it("should list all reminders as tree", async () => {
       const tree = await reminders.listTree();
 
       expect(typeof tree).toBe("string");
-      console.log("Reminders tree preview:", tree.substring(0, 500));
     });
   });
 
@@ -89,7 +83,6 @@ describe("Reminders Integration Tests", () => {
       createdReminders.push({ text, list: defaultList });
 
       expect(result).toContain("added successfully");
-      console.log("Create result:", result);
     });
 
     it("should create reminder with due date", async () => {
@@ -102,7 +95,6 @@ describe("Reminders Integration Tests", () => {
       createdReminders.push({ text, list: defaultList });
 
       expect(result).toContain("added successfully");
-      console.log("Created reminder with due date:", dueDate);
     });
 
     it("should find created reminders in list", async () => {
@@ -110,10 +102,6 @@ describe("Reminders Integration Tests", () => {
 
       const hasTestReminder = results.some((r) => r.includes(TEST_PREFIX));
       expect(hasTestReminder).toBe(true);
-      console.log(
-        "Reminders in list:",
-        results.filter((r) => r.includes(TEST_PREFIX)),
-      );
     });
 
     it("should complete a reminder", async () => {
@@ -148,7 +136,15 @@ describe("Reminders Integration Tests", () => {
     });
 
     it("should handle non-existent list gracefully", async () => {
-      await expect(reminders.list("NonExistentList_xyz_123")).rejects.toThrow();
+      // Enable silent mode for expected errors
+      process.env.MCP_SILENT_EXPECTED_ERRORS = "true";
+      try {
+        await expect(
+          reminders.list("NonExistentList_xyz_123"),
+        ).rejects.toThrow();
+      } finally {
+        delete process.env.MCP_SILENT_EXPECTED_ERRORS;
+      }
     });
   });
 });

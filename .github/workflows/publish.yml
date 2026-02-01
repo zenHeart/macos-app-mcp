@@ -3,11 +3,11 @@ name: Publish to NPM
 on:
   push:
     tags:
-      - 'v*.*.*'  # Triggered when pushing version tags like v1.0.3
+      - "v*.*.*" # Triggered when pushing version tags like v1.0.3
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (leave empty to use existing version)'
+        description: "Version to publish (leave empty to use existing version)"
         required: false
         type: string
 
@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -53,13 +53,13 @@ jobs:
         run: npm install -g npm@latest
 
       - name: Run Lint
-        run: pnpm run lint
+        run: pnpm lint
 
       - name: Run Tests
-        run: pnpm run test
+        run: pnpm test
 
       - name: Build
-        run: pnpm run build
+        run: pnpm build
 
       - name: Publish to NPM
         run: npm publish --provenance

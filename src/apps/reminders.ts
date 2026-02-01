@@ -28,6 +28,33 @@ export class Reminders {
   }
 
   /**
+   * Ensure a reminder list exists, creating it if necessary
+   */
+  private async ensureList(listName: string): Promise<void> {
+    const checkScript = `
+      tell application "Reminders"
+        try
+          set targetList to list "${listName}"
+          return "exists"
+        on error
+          return "not found"
+        end try
+      end tell
+    `;
+
+    const result = await AppleScriptRunner.execute(checkScript, "Reminders");
+    if (result.trim() === "exists") return;
+
+    // Create the list
+    const createScript = `
+      tell application "Reminders"
+        make new list with properties {name:"${listName}"}
+      end tell
+    `;
+    await AppleScriptRunner.execute(createScript, "Reminders");
+  }
+
+  /**
    * Add a new reminder
    * @param text - Reminder content
    * @param due - Optional due date string (e.g. "2023-12-31 10:00")
@@ -36,6 +63,11 @@ export class Reminders {
    */
   async add(text: string, due?: string, listName?: string): Promise<string> {
     const targetList = listName || this.config.getDefaultRemindersList();
+
+    // Ensure list exists before adding reminder
+    if (targetList) {
+      await this.ensureList(targetList);
+    }
 
     // Correct syntax is "at end of list" or "in list"
     const listClause = targetList ? `at end of list "${targetList}"` : "";

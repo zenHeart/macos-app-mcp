@@ -53,21 +53,21 @@ The project uses `pnpm` as its package manager. Key commands are defined in `pac
     *Compiles TypeScript to JavaScript in the `dist` directory.*
 
     ```bash
-    pnpm run build
+    pnpm build
     ```
 
 - **Run in Development:**
     *Watches for file changes, rebuilds, and restarts the server on success.*
 
     ```bash
-    pnpm run dev
+    pnpm dev
     ```
 
 - **Run Tests:**
 
     ```bash
-    pnpm run test         # Run tests once
-    pnpm run test:watch   # Run tests in watch mode
+    pnpm test         # Run tests once
+    pnpm test:watch   # Run tests in watch mode
     pnpm test:coverage  # Run tests and generate a coverage report
     ```
 
@@ -75,21 +75,21 @@ The project uses `pnpm` as its package manager. Key commands are defined in `pac
     *Tests against real macOS apps (Notes, Reminders, Calendar)*
 
     ```bash
-    pnpm run test:integration  # Run integration tests
+    pnpm test:integration  # Run integration tests
     ```
 
 - **MCP Inspector Playground:**
     *Interactive web UI for testing MCP tools*
 
     ```bash
-    pnpm run playground      # Start MCP Inspector (requires build first)
-    pnpm run playground:dev  # Build and start MCP Inspector
+    pnpm playground      # Start MCP Inspector (requires build first)
+    pnpm playground:dev  # Build and start MCP Inspector
     ```
 
 - **Linting/Type-Checking:**
 
     ```bash
-    pnpm run lint
+    pnpm lint
     ```
 
 ## Development Conventions

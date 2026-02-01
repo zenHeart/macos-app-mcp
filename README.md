@@ -17,15 +17,9 @@ Production-ready Model Context Protocol (MCP) server for deep macOS integration:
 
 ## 🚀 Quick Start
 
-### 1. Run with npx
+### 1. Configure Your MCP Client
 
-```bash
-npx -y macos-mcp-server
-```
-
-### 2. Configure Your Client
-
-Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
+Add this to your MCP configuration:
 
 ```json
 {
@@ -34,8 +28,8 @@ Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
       "command": "npx",
       "args": ["-y", "macos-mcp-server"],
       "env": {
-        "MCP_NOTES_FOLDER": "work",
-        "MCP_REMINDERS_LIST": "work",
+        "MCP_NOTES_FOLDER": "ai",
+        "MCP_REMINDERS_LIST": "ai",
         "MCP_ALLOW_DELETE": "false"
       }
     }
@@ -50,7 +44,14 @@ Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
 | **Windsurf** | `Settings > Extensions > MCP` |
 | **Gemini CLI** | `~/.gemini/config.json` |
 
----
+### 2. Start Using
+
+Once configured, you can ask your AI assistant:
+
+- `What's on my calendar today?`
+- `Create a note titled 'Meeting Notes' with today's action items`
+- `Add a reminder to call John tomorrow at 10am`
+- `Find contact info for Alice`
 
 ## 🛠️ Available Tools (29 total)
 
@@ -92,8 +93,8 @@ Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
 | :--- | :--- | :--- |
 | `MCP_ALLOW_DELETE` | `false` | Enable/Disable deletion capability |
 | `MCP_ALLOW_UPDATE` | `false` | Enable/Disable editing capability |
-| `MCP_NOTES_FOLDER` | *(undefined)* | Default folder for new notes; uses default account if not set |
-| `MCP_REMINDERS_LIST` | `ai` | Default list for new reminders |
+| `MCP_NOTES_FOLDER` | `ai` | Default folder for new notes; auto-created if not exists |
+| `MCP_REMINDERS_LIST` | `ai` | Default list for new reminders; auto-created if not exists |
 | `MCP_LOGGING_ENABLED` | `true` | Required for recovery features |
 
 ## 🔧 Development
@@ -104,20 +105,20 @@ Add this to your MCP configuration (Cursor, Claude Desktop, Windsurf, etc.):
 git clone https://github.com/zenheart/macos-mcp-server
 cd macos-mcp-server
 pnpm install
-pnpm run build
+pnpm build
 ```
 
 ### Testing
 
 ```bash
 # Run unit tests (mocked, safe to run)
-pnpm run test
+pnpm test
 
 # Run unit tests in watch mode
-pnpm run test:watch
+pnpm test:watch
 
 # Run with coverage report
-pnpm run test:coverage
+pnpm test:coverage
 ```
 
 ### Integration Testing
@@ -126,7 +127,7 @@ pnpm run test:coverage
 
 ```bash
 # Run integration tests against real macOS apps
-pnpm run test:integration
+pnpm test:integration
 ```
 
 **Known Limitations:**
@@ -141,10 +142,10 @@ The MCP Inspector provides an interactive web UI for testing tools manually:
 
 ```bash
 # Build and start MCP Inspector (opens http://localhost:5173)
-pnpm run playground:dev
+pnpm playground:dev
 
 # Or if already built
-pnpm run playground
+pnpm playground
 ```
 
 The Inspector allows you to:
@@ -157,15 +158,15 @@ The Inspector allows you to:
 ### Development Workflow
 
 1. Make changes to source files in `src/`
-2. Run `pnpm run dev` for watch mode (auto-rebuild on save)
-3. Test with unit tests: `pnpm run test`
-4. Test interactively: `pnpm run playground:dev`
-5. Run integration tests before submitting PR: `pnpm run test:integration`
+2. Run `pnpm dev` for watch mode (auto-rebuild on save)
+3. Test with unit tests: `pnpm test`
+4. Test interactively: `pnpm playground:dev`
+5. Run integration tests before submitting PR: `pnpm test:integration`
 
 ### Type Checking
 
 ```bash
-pnpm run lint
+pnpm lint
 ```
 
 ### Release Workflow
@@ -174,13 +175,13 @@ The project uses automated version bumping with GitHub Actions:
 
 ```bash
 # Patch release (1.0.2 -> 1.0.3) - for bug fixes
-pnpm run release
+pnpm release
 
 # Minor release (1.0.2 -> 1.1.0) - for new features
-pnpm run release:minor
+pnpm release:minor
 
 # Major release (1.0.2 -> 2.0.0) - for breaking changes
-pnpm run release:major
+pnpm release:major
 ```
 
 This will:

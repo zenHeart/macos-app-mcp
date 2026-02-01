@@ -21,8 +21,9 @@ describe("Full Workflow Integration Tests", () => {
   beforeAll(() => {
     process.env.MCP_ALLOW_DELETE = "true";
     process.env.MCP_ALLOW_UPDATE = "true";
-    // Don't set MCP_NOTES_FOLDER - use default account
-    delete process.env.MCP_NOTES_FOLDER;
+    // Use "ai" folder/list for tests (auto-created if not exists)
+    process.env.MCP_NOTES_FOLDER = "ai";
+    process.env.MCP_REMINDERS_LIST = "ai";
 
     notes = new Notes();
     reminders = new Reminders();
@@ -34,26 +35,21 @@ describe("Full Workflow Integration Tests", () => {
     it("should check today's schedule", async () => {
       const events = await calendar.listEvents("today");
       expect(Array.isArray(events)).toBe(true);
-      console.log("Today's schedule:", events.length, "events");
     });
 
     it("should search for meeting notes", async () => {
       const results = await notes.query("meeting");
       expect(Array.isArray(results)).toBe(true);
-      console.log("Meeting-related notes:", results.length);
     });
 
     it("should add a reminder for meeting prep", async () => {
-      const lists = await reminders.listLists();
-      const defaultList = lists[0];
-
       const text = `${TEST_PREFIX} Prepare for meeting ${Date.now()}`;
-      const result = await reminders.add(text, undefined, defaultList);
+      const result = await reminders.add(text);
 
       expect(result).toContain("added");
 
       // Cleanup
-      await reminders.delete(text, text, defaultList);
+      await reminders.delete(text, text, "ai");
     });
   });
 
@@ -61,28 +57,23 @@ describe("Full Workflow Integration Tests", () => {
     it("should create a project note and related reminders", async () => {
       const projectName = `${TEST_PREFIX} Project ${Date.now()}`;
 
-      // Create project note
+      // Create project note in ai folder
       const noteResult = await notes.create(
         projectName,
         "# Project Status\n\n- [ ] Task 1\n- [ ] Task 2\n- [ ] Task 3",
       );
       expect(noteResult).toContain("created");
 
-      // Create related reminder
-      const lists = await reminders.listLists();
-      const reminderResult = await reminders.add(
-        `Review ${projectName}`,
-        undefined,
-        lists[0],
-      );
+      // Create related reminder in ai list
+      const reminderResult = await reminders.add(`Review ${projectName}`);
       expect(reminderResult).toContain("added");
 
       // Cleanup
-      await notes.delete(projectName, projectName);
+      await notes.delete(projectName, projectName, "ai");
       await reminders.delete(
         `Review ${projectName}`,
         `Review ${projectName}`,
-        lists[0],
+        "ai",
       );
     });
   });
@@ -118,25 +109,21 @@ describe("Full Workflow Integration Tests", () => {
       // Notes
       const folders = await notes.listFolders();
       expect(folders).toBeDefined();
-      console.log("✓ Notes accessible");
 
       // Reminders
       const lists = await reminders.listLists();
       expect(lists.length).toBeGreaterThan(0);
-      console.log("✓ Reminders accessible");
 
       // Calendar
       const calendars = await calendar.listCalendars();
       expect(calendars.length).toBeGreaterThan(0);
-      console.log("✓ Calendar accessible");
 
       // Contacts - try but don't fail if not available
       try {
         const contactList = await contacts.list(1);
         expect(Array.isArray(contactList)).toBe(true);
-        console.log("✓ Contacts accessible");
       } catch (e) {
-        console.log("⚠ Contacts not accessible (app may not be running)");
+        // Contacts app may not be running
       }
     });
   });

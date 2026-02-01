@@ -33,8 +33,8 @@ describe("Notes Integration Tests", () => {
     // Enable all operations for testing
     process.env.MCP_ALLOW_DELETE = "true";
     process.env.MCP_ALLOW_UPDATE = "true";
-    // Don't set MCP_NOTES_FOLDER - use default account
-    delete process.env.MCP_NOTES_FOLDER;
+    // Use "ai" folder for tests (it will be auto-created if not exists)
+    process.env.MCP_NOTES_FOLDER = "ai";
     notes = new Notes();
     // Generate unique title for this test run
     testNoteTitle = `${TEST_PREFIX}Note ${Date.now()}`;
@@ -45,7 +45,7 @@ describe("Notes Integration Tests", () => {
     const cleanupTimeout = 5000;
     for (const title of createdNotes) {
       try {
-        const deletePromise = notes.delete(title, title);
+        const deletePromise = notes.delete(title, title, "ai");
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(
             () => reject(new Error("Cleanup timeout")),
@@ -53,12 +53,8 @@ describe("Notes Integration Tests", () => {
           ),
         );
         await Promise.race([deletePromise, timeoutPromise]);
-        console.log(`Cleaned up: ${title}`);
       } catch (e) {
         // Expected to fail often due to Notes app limitations
-        console.warn(
-          `Failed to clean up: ${title} (this is a known limitation)`,
-        );
       }
     }
   }, 120000); // 2 minute timeout for afterAll
@@ -71,7 +67,6 @@ describe("Notes Integration Tests", () => {
       expect(typeof result).toBe("string");
       // Should have content (at least "Notes" folder exists)
       expect(result.length).toBeGreaterThan(0);
-      console.log("Available folders:", result);
     });
   });
 
@@ -82,7 +77,6 @@ describe("Notes Integration Tests", () => {
       createdNotes.push(testNoteTitle);
 
       expect(result).toContain("created successfully");
-      console.log("Create result:", result);
 
       // Wait for Notes app to possibly index the new note
       await wait(3000);
@@ -94,7 +88,6 @@ describe("Notes Integration Tests", () => {
 
       // Should find at least one test note
       expect(results.length).toBeGreaterThan(0);
-      console.log("Query results:", results);
     });
 
     // NOTE: The following tests are skipped due to macOS Notes app limitations
@@ -142,7 +135,13 @@ describe("Notes Integration Tests", () => {
     });
 
     it("should handle non-existent note gracefully", async () => {
-      await expect(notes.get("NonExistentNote_12345_xyz")).rejects.toThrow();
+      // Enable silent mode for expected errors
+      process.env.MCP_SILENT_EXPECTED_ERRORS = "true";
+      try {
+        await expect(notes.get("NonExistentNote_12345_xyz")).rejects.toThrow();
+      } finally {
+        delete process.env.MCP_SILENT_EXPECTED_ERRORS;
+      }
     });
   });
 });

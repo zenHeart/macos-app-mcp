@@ -190,12 +190,12 @@ Run these automated tests:
 
 ```bash
 # Full test suite
-pnpm run test:integration
+pnpm test:integration
 
 # Individual scenarios
-pnpm run test:integration -- --grep "Notes"
-pnpm run test:integration -- --grep "Reminders"
-pnpm run test:integration -- --grep "Calendar"
-pnpm run test:integration -- --grep "Contacts"
-pnpm run test:integration -- --grep "Recovery"
+pnpm test:integration -- --grep "Notes"
+pnpm test:integration -- --grep "Reminders"
+pnpm test:integration -- --grep "Calendar"
+pnpm test:integration -- --grep "Contacts"
+pnpm test:integration -- --grep "Recovery"
 ```

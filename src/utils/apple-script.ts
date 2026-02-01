@@ -105,7 +105,10 @@ ${script}`;
         }
 
         // For other errors, throw immediately
-        console.error(`[MCP Error] AppleScript failed: ${error.message}`);
+        // Only log if not in silent mode (useful for expected error tests)
+        if (!process.env.MCP_SILENT_EXPECTED_ERRORS) {
+          console.error(`[MCP Error] AppleScript failed: ${error.message}`);
+        }
         throw new McpError(
           ErrorCode.InternalError,
           `AppleScript Execution Failed: ${error.message}`,

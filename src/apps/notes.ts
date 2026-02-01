@@ -120,6 +120,49 @@ export class Notes {
   }
 
   /**
+   * Ensure a folder exists, creating it if necessary
+   */
+  private async ensureFolder(folderPath: string): Promise<void> {
+    const parts = folderPath.split("/").filter(Boolean);
+    if (parts.length === 0) return;
+
+    // Check if folder exists
+    const checkScript = `
+      tell application "Notes"
+        try
+          set targetFolder to ${this.folderToAppleScript(folderPath)}
+          return "exists"
+        on error
+          return "not found"
+        end try
+      end tell
+    `;
+
+    const result = await AppleScriptRunner.execute(checkScript, "Notes");
+    if (result.trim() === "exists") return;
+
+    // Create folder hierarchy
+    let currentPath = "";
+    for (const part of parts) {
+      const parentRef = currentPath
+        ? this.folderToAppleScript(currentPath)
+        : "default account";
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+      const createScript = `
+        tell application "Notes"
+          try
+            set targetFolder to ${this.folderToAppleScript(currentPath)}
+          on error
+            make new folder in ${parentRef} with properties {name:"${part}"}
+          end try
+        end tell
+      `;
+      await AppleScriptRunner.execute(createScript, "Notes");
+    }
+  }
+
+  /**
    * Create a new note
    */
   async create(
@@ -129,6 +172,12 @@ export class Notes {
     options: { skipLog?: boolean } = {},
   ): Promise<string> {
     const targetFolder = folder || this.config.getDefaultNotesFolder();
+
+    // Ensure folder exists before creating note
+    if (targetFolder) {
+      await this.ensureFolder(targetFolder);
+    }
+
     const folderRef = this.folderToAppleScript(targetFolder);
 
     // If the content already starts with the title, strip it to avoid duplication

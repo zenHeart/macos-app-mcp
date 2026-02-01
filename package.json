@@ -25,14 +25,14 @@
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "playground": "npx @modelcontextprotocol/inspector node dist/index.js",
-    "playground:dev": "pnpm run build && npx @modelcontextprotocol/inspector node dist/index.js",
+    "playground:dev": "pnpm build && npx @modelcontextprotocol/inspector node dist/index.js",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "prepublishOnly": "pnpm run lint && pnpm run test && pnpm run build",
-    "release": "pnpm run lint && pnpm run test && pnpm run build && npm version patch && git push && git push --tags",
-    "release:minor": "pnpm run lint && pnpm run test && pnpm run build && npm version minor && git push && git push --tags",
-    "release:major": "pnpm run lint && pnpm run test && pnpm run build && npm version major && git push && git push --tags"
+    "prepublishOnly": "pnpm lint && pnpm test && pnpm build",
+    "release": "pnpm lint && pnpm test && pnpm build && npm version patch && git push && git push --tags",
+    "release:minor": "pnpm lint && pnpm test && pnpm build && npm version minor && git push && git push --tags",
+    "release:major": "pnpm lint && pnpm test && pnpm build && npm version major && git push && git push --tags"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3",
