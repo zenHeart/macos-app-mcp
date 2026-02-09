@@ -26,7 +26,7 @@ Add this to your MCP configuration:
   "mcpServers": {
     "macos": {
       "command": "npx",
-      "args": ["-y", "macos-mcp-server"],
+      "args": ["-y", "macos-app-mcp"],
       "env": {
         "MCP_NOTES_FOLDER": "ai",
         "MCP_REMINDERS_LIST": "ai",
@@ -102,8 +102,8 @@ Once configured, you can ask your AI assistant:
 ### Setup
 
 ```bash
-git clone https://github.com/zenheart/macos-mcp-server
-cd macos-mcp-server
+git clone https://github.com/zenheart/macos-app-mcp
+cd macos-app-mcp
 pnpm install
 pnpm build
 ```

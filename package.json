@@ -1,5 +1,5 @@
 {
-  "name": "macos-mcp-server",
+  "name": "macos-app-mcp",
   "version": "1.0.4",
   "description": "A production-ready MCP server for deep macOS integration (Notes, Reminders, Calendar, Contacts, Messages)",
   "type": "module",

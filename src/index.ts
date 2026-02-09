@@ -37,7 +37,7 @@ class MacOSMcpServer {
 
   constructor() {
     this.server = new Server(
-      { name: "macos-mcp-server", version: "1.0.0" },
+      { name: "macos-app-mcp", version: "1.0.0" },
       { capabilities: { tools: {} } },
     );
     this.setupHandlers();

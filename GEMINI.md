@@ -1,6 +1,6 @@
 # Gemini Code-Understanding Context
 
-This document provides an overview of the `macos-mcp-server` project to guide an AI assistant in understanding and modifying the codebase.
+This document provides an overview of the `macos-app-mcp` project to guide an AI assistant in understanding and modifying the codebase.
 
 ## Project Overview
 
